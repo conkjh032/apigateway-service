@@ -13,8 +13,10 @@ eureka:
 spring:
   application:
     name: apigateway-service
+
   cloud:
     gateway:
+      # 공통 필터는 아래와 같이 작성
       default-filters:
         - name: GlobalFilter
           args:
@@ -24,10 +26,13 @@ spring:
 
       routes:
         - id: first-service
+          # 의미: Discovery Service에 등록된 MY-FIRST-SERVICE로 보내주겠다.
+          # MY-FIRST-SERVICE는 애플리케이션의 이름이다.
           uri: lb://MY-FIRST-SERVICE
           predicates:
             - Path=/first-service/**
           filters:
+#            - 아래 2개 필터는 기본으로 제공되는 필터를 이용한 것이다.
 #            - AddRequestHeader=first-request, first-request-header2
 #            - AddResponseHeader=first-response, first-response-header2
             - CustomFilter

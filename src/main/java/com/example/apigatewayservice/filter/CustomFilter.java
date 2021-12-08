@@ -12,14 +12,17 @@ import reactor.core.publisher.Mono;
 @Slf4j
 public class CustomFilter extends AbstractGatewayFilterFactory<CustomFilter.Config> {
     public CustomFilter(){
-        super();
+        // 상위 클래스의 config 호출
+        super(Config.class);
     }
 
-
+    // Override할 매소드를 쉽게 불러오는 방법
+    // 마우스 우측 클릭 -> generate -> implement methods -> 원하는 매개변수를 갖는 메소드 선택
     @Override
     public GatewayFilter apply(Config config){
-        // Custom Pre Filter
-        return (exchange, chain) -> { // exchange와 chain을 인자로 받음
+
+        // Pre Filter
+        return (exchange, chain) -> {
 
             // 비동기 객체
             ServerHttpRequest request = exchange.getRequest();
@@ -27,11 +30,11 @@ public class CustomFilter extends AbstractGatewayFilterFactory<CustomFilter.Conf
 
             log.info("Custom Pre Filter : request id -> {}", request.getId());
 
-            // Custom Post Filter
-            // chain filter에 post filter를 정의하고
-            // then() : 반환 값으로 이것들을 줌
-            // Mono : 반환 값으로 data type이 mono라는 것을 1개 줌
+            //Post Filter
+            // chain.filter( arg ) : arg는 필터에 적용할 객체
+            // then() : 필터가 적용된 후, 반환 값으로 내부에 코딩된 내용을 반환
             return chain.filter(exchange).then(Mono.fromRunnable(()->{
+
                 log.info("Custom Post Filter : reponse id -> {}", response.getStatusCode());
             }));
         };

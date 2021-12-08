@@ -16,11 +16,10 @@ public class GlobalFilter extends AbstractGatewayFilterFactory<GlobalFilter.Conf
         super(Config.class);
     }
 
-
     @Override
     public GatewayFilter apply(Config config){
         // Global Pre Filter
-        return (exchange, chain) -> { // exchange와 chain을 인자로 받음
+        return (exchange, chain) -> {
             ServerHttpRequest request = exchange.getRequest();
             ServerHttpResponse response = exchange.getResponse();
 
@@ -30,7 +29,7 @@ public class GlobalFilter extends AbstractGatewayFilterFactory<GlobalFilter.Conf
                 log.info("Global Filter Start : request id -> {}", request.getId());
             }
 
-            // Other Filter running
+            // Next Filter running //
 
             // Global Post Filter
             return chain.filter(exchange).then(Mono.fromRunnable(()->{
@@ -44,9 +43,9 @@ public class GlobalFilter extends AbstractGatewayFilterFactory<GlobalFilter.Conf
 
 
     // inner class
-    @Data // Lombok를 이용하면 해당 클래스에 Getter와 Setter를 자동 생성
+    @Data
     public static class Config{
-        // Put the configuration properties
+        // 아래 값들은 application.yaml의 설정에서 가져와 자동으로 입력
         private String baseMessage;
         private boolean preLogger;
         private boolean postLogger;

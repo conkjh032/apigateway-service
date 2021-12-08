@@ -21,7 +21,7 @@ public class LoggingFilter extends AbstractGatewayFilterFactory<LoggingFilter.Co
     @Override
     public GatewayFilter apply(Config config){
         // Logging Pre Filter
-//        return (exchange, chain) -> { // exchange와 chain을 인자로 받음
+//        return (exchange, chain) -> {
 //            ServerHttpRequest request = exchange.getRequest();
 //            ServerHttpResponse response = exchange.getResponse();
 //
@@ -30,7 +30,6 @@ public class LoggingFilter extends AbstractGatewayFilterFactory<LoggingFilter.Co
 //            if(config.isPreLogger()){
 //                log.info("Global Filter Start : request id -> {}", request.getId());
 //            }
-//
 //
 //            // Logging Post Filter
 //            return chain.filter(exchange).then(Mono.fromRunnable(()->{
@@ -41,10 +40,10 @@ public class LoggingFilter extends AbstractGatewayFilterFactory<LoggingFilter.Co
 //            }));
 //        };
 
-        // 위 lambda식을 아래와 같이 사용
+
+        // 위 lambda식을 다르게 표현
         // public OrderedGatewayFilter(GatewayFilter delegate, int order)
         // public Mono<Void> filter(ServerWebExchange exchange, GatewayFilterChain chain)
-        // filter 함수를 lambda 식으로 표현하면 인자를 적고 실행문을 적기만 하면 된다.
        GatewayFilter filter = new OrderedGatewayFilter((exchange, chain) -> {
            ServerHttpRequest request = exchange.getRequest();
            ServerHttpResponse response = exchange.getResponse();
@@ -68,10 +67,8 @@ public class LoggingFilter extends AbstractGatewayFilterFactory<LoggingFilter.Co
     }
 
 
-    // inner class
-    @Data // Lombok를 이용하면 Getter와 Setter를 자동 생성
+    @Data
     public static class Config{
-        // Put the configuration properties
         private String baseMessage;
         private boolean preLogger;
         private boolean postLogger;
