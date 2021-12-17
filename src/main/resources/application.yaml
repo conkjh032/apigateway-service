@@ -9,6 +9,9 @@ eureka:
     service-url:
       defaultZone: http://localhost:8761/eureka
 
+  instance:
+    hostname: localhost
+
 
 spring:
   application:
@@ -25,9 +28,46 @@ spring:
             postLogger: true
 
       routes:
+        - id: user-service
+          uri: lb://USER-SERVICE
+          predicates:
+            - Path=/user-service/login
+            - Method=POST
+          filters:
+            - RemoveRequestHeader=Cookie # 매번 새롭게 reqeust를 받기 위해서 reqeust header를 제거
+            - RewritePath=/user-service/(?<segment>.*), /$\{segment}
+
+        - id: user-service
+          uri: lb://USER-SERVICE
+          predicates:
+            - Path=/user-service/users
+            - Method=POST
+          filters:
+            - RemoveRequestHeader=Cookie
+            - RewritePath=/user-service/(?<segment>.*), /$\{segment}
+
+        - id: user-service
+          uri: lb://USER-SERVICE
+          predicates:
+            - Path=/user-service/**
+            - Method=GET
+          filters:
+            - RemoveRequestHeader=Cookie
+            - RewritePath=/user-service/(?<segment>.*), /$\{segment}
+            - AuthorizationHeaderFilter
+
+
+        - id: catalog-service
+          uri: lb://CATALOG-SERVICE
+          predicates:
+            - Path=/catalog-service/**
+
+        - id: order-service
+          uri: lb://ORDER-SERVICE
+          predicates:
+            - Path=/order-service/**
+
         - id: first-service
-          # 의미: Discovery Service에 등록된 MY-FIRST-SERVICE로 보내주겠다.
-          # MY-FIRST-SERVICE는 애플리케이션의 이름이다.
           uri: lb://MY-FIRST-SERVICE
           predicates:
             - Path=/first-service/**
@@ -52,7 +92,5 @@ spring:
                 postLogger: true
 
 
-
-
-
-
+token:
+  secret: user_token # 토큰화할 때 사용할 키
