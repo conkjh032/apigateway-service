@@ -24,7 +24,7 @@ public class AuthorizationHeaderFilter extends AbstractGatewayFilterFactory<Auth
         this.env = env;
     }
 
-    // login 성공 -> 사용자는 token 받음 -> 사용자는 토큰을 가지고 서비스 접근, 토큰은 Header 안에 있음
+    // login 성공 -> 사용자는 token 받음 -> (여기서) 사용자는 토큰을 가지고 서비스 접근, 토큰은 Header 안에 있음
     @Override
     public GatewayFilter apply(Config config) {
         return (exchange, chain) -> {
@@ -71,6 +71,7 @@ public class AuthorizationHeaderFilter extends AbstractGatewayFilterFactory<Auth
     }
 
     // Mono, flux : WebFlux에서 데이터를 처리하는 단위
+    // 에러 처리 메소드
     private Mono<Void> onError(ServerWebExchange exchange, String error_msg, HttpStatus httpStatus) {
         ServerHttpResponse response = exchange.getResponse();
         response.setStatusCode(httpStatus);

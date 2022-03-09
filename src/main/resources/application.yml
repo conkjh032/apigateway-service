@@ -16,7 +16,11 @@ eureka:
 spring:
   application:
     name: apigateway-service
-
+  rabbitmq:
+    host: 127.0.0.1
+    port: 5672
+    username: guest
+    password: guest
   cloud:
     gateway:
       # 공통 필터는 아래와 같이 작성
@@ -56,6 +60,15 @@ spring:
             - RewritePath=/user-service/(?<segment>.*), /$\{segment}
             - AuthorizationHeaderFilter
 
+        - id: user-service
+          uri: lb://USER-SERVICE
+          predicates:
+            - Path=/user-service/actuator/**
+            - Method=GET, POST
+          filters:
+            - RemoveRequestHeader=Cookie
+            - RewritePath=/user-service/(?<segment>.*), /$\{segment}
+
 
         - id: catalog-service
           uri: lb://CATALOG-SERVICE
@@ -66,6 +79,15 @@ spring:
           uri: lb://ORDER-SERVICE
           predicates:
             - Path=/order-service/**
+
+        - id: order-service
+          uri: lb://ORDER-SERVICE
+          predicates:
+            - Path=/order-service/actuator/**
+            - Method=GET
+          filters:
+            - RemoveRequestHeader=Cookie
+            - RewritePath=/order-service/(?<segment>.*), /$\{segment}
 
         - id: first-service
           uri: lb://MY-FIRST-SERVICE
@@ -92,5 +114,16 @@ spring:
                 postLogger: true
 
 
-token:
-  secret: user_token # 토큰화할 때 사용할 키
+#token:
+#  secret: user_token # 토큰화할 때 사용할 키
+
+
+# config service 이용
+management:
+  endpoints:
+    web:
+      exposure:
+        include: gateway, busrefresh, refresh, health, beans, httptrace, info, prometheus, metrics # httptrace 이용을 위해서 ApigatewayServiceApplication.java에 빈 등록
+  endpoint:
+    gateway:
+      enabled: true
